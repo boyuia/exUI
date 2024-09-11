@@ -14,6 +14,35 @@ class button(val text: String, engineManager: EngineManager) : Component(engineM
     }
 }
 
+data class ComponentStat(val properties: Map<String, Any>, val children: List<Component>)
+
+open class Diffs {
+    private var previousState: ComponentState? = null
+
+    fun render(diffLibrary: Any, properties: Any?, children: Any?, renderedHtml: String): String {
+        val currentState = ComponentState(properties, children)
+        val diff = previousState?.toJson()?.let { diffLibrary.diff(it, currentState.toJson()) }
+        diff.applyTo(this)
+        previousState = currentState
+        return renderedHtml
+    }
+}
+
+private fun Any?.applyTo(diffs: Diffs) {
+    TODO("Not yet implemented")
+}
+
+private fun Any.diff(toJson: Any, toJson1: Any): Any {
+    TODO("Not yet implemented")
+}
+
+class ComponentState(properties: Any?, children: Any?) {
+    fun toJson() {
+
+    }
+
+}
+
 data class Color(val red: Long, val green: Int, val blue: Int)
 
 data class ComponentNode(val component: Component, val children: List<ComponentNode>)
@@ -40,10 +69,21 @@ class TextField(val label: String, engineManager: EngineManager) : Component(eng
     }
 }
 
-class Form(val box: String, engineManager: EngineManager) : Component(engineManager) {
+class Form(val label: String, val type: InputType = InputType.Text, engineManager: EngineManager) : Component(
+    engineManager
+) {
     override fun render(): String {
-        return "<form><label for='username'>$box</label><input type='text' id='name' name='name'></form>"
+        return "<form><label for='$label'>$label</label><input type='${type.value}' id='$label' name='$label'></form>"
     }
+}
+
+enum class InputType(val value: String) {
+    Text("text"),
+    Email("email"),
+    Password("password"),
+    Checkbox("checkbox"),
+    Radio("radio"),
+    // Add more input types as needed
 }
 
 class Shape(val type: ShapeType, val width: Int, val height: Int, val color: String, engineManager: EngineManager) : Component(
@@ -121,6 +161,13 @@ fun renderButton(designLanguage: DesignLanguage): String {
             "Click me",
             engineManager = TODO()
         ).render()
+    }
+}
+
+class icon(val text: String, val isVisible: Boolean = false, engineManager: EngineManager) : Component(engineManager) {
+    override fun render(): String {
+        val className = if (isVisible) "fade-in" else ""
+        return "<button class='$className'>$text</button>"
     }
 }
 
